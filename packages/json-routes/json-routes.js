@@ -56,7 +56,7 @@ Meteor.startup(function () {
   errorMiddlewares = [];
 });
 
-JsonRoutes.add = function (method, path, handler) {
+JsonRoutes.add = function (method, path, handler, json = true) {
   // Make sure path starts with a slash
   if (path[0] !== '/') {
     path = '/' + path;
