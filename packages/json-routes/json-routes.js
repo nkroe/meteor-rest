@@ -3,6 +3,7 @@
 var Fiber = Npm.require('fibers');
 var connect = Npm.require('connect');
 var connectRoute = Npm.require('connect-route');
+var bodyParser = Npm.require('body-parser');
 
 JsonRoutes = {};
 
@@ -62,6 +63,12 @@ JsonRoutes.add = function (method, path, handler, json = true) {
     path = '/' + path;
   }
 
+  if (json) {
+    WebApp.connectHandlers.use.apply(WebApp.connectHandlers, connect.json({limit: '50mb'}));
+  } else {
+    WebApp.connectHandlers.use.apply(WebApp.connectHandlers, bodyParser.raw({ type: 'application/json' }));
+  }
+
   // Add to list of known endpoints
   JsonRoutes.routes.push({
     method: method,
@@ -73,13 +80,7 @@ JsonRoutes.add = function (method, path, handler, json = true) {
     setHeaders(res, responseHeaders);
     Fiber(function () {
       try {
-        if (json) {
-          WebApp.connectHandlers.use(connect.json({limit: '50mb'}));
-          handler(req, res, next);
-        } else {
-          WebApp.connectHandlers.use(connect.raw());
-          handler(req, res, next);
-        }
+        handler(req, res, next);
       } catch (error) {
         next(error);
       }
